@@ -7,27 +7,32 @@
 template<class Ele, class Keytype> class list;
 
 template<class Ele, class Keytype> class list {
- private:
-  Ele *my_head;
-  unsigned long long my_num_ele;
- public:
-  list(){
-    my_head = NULL;
-    my_num_ele = 0;
-  }
+    private:
+        Ele *my_head;
+        unsigned long long my_num_ele;
+    public:
+        list(){
+            my_head = NULL;
+            my_num_ele = 0;
+        }
 
-  void setup();
+        void setup();
 
-  unsigned num_ele(){return my_num_ele;}
+        unsigned num_ele(){
+            return my_num_ele;
+        }
 
-  Ele *head(){ return my_head; }
-  Ele *lookup(Keytype the_key);
+        Ele *head(){
+            return my_head; 
+        }
+        
+        Ele *lookup(Keytype the_key);
 
-  void push(Ele *e);
-  Ele *pop();
-  void print(FILE *f=stdout);
+        void push(Ele *e);
+        Ele *pop();
+        void print(FILE *f=stdout);
 
-  void cleanup();
+        void cleanup();
 };
 
 template<class Ele, class Keytype> 
