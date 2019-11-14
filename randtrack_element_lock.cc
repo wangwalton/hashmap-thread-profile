@@ -27,6 +27,7 @@ class sample;
 
 class sample {
     unsigned my_key;
+    pthread_mutex_t lock;
 
     public:
         sample *next;
@@ -36,9 +37,15 @@ class sample {
         {
             my_key = the_key;
             count = 0;
+            lock = PTHREAD_MUTEX_INITIALIZER;
         };
         unsigned key() { return my_key; }
-        void print(FILE *f) { printf("%d %d\n", my_key, count); }
+        void print(FILE *f) { printf("%d %d\n", my_key, count);}
+        void atomic_incre() {
+            pthread_mutex_lock(&lock);
+            count++;
+            pthread_mutex_unlock(&lock);
+        }
 };
 
 // This instantiates an empty hash table
@@ -67,19 +74,19 @@ void random_generator(void *arg) {
             // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
             key = rnum % RAND_NUM_UPPER_BOUND;
             
-            h.lock(key);
             // if this sample has not been counted before
+            h.lock(key);
             if (!(s = h.lookup(key))) {
 
                 // insert a new element for it into the hash table
                 s = new sample(key);
                 h.insert(s);
+                h.unlock(key);
             }
-
+            h.unlock(key);
 
             // increment the count for the sample
-            s->count++;
-            h.unlock(key);
+            s->atomic_incre();
         }
     }
 }

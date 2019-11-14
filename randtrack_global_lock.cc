@@ -28,6 +28,7 @@ pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
 
 class sample {
     unsigned my_key;
+    
 
     public:
         sample *next;
@@ -48,7 +49,7 @@ class sample {
 // key value is "unsigned".
 hash<sample, unsigned> h;
 
-void yanisa_dumb(void *arg) {
+void random_generator(void *arg) {
     int rnum;
     int i, j, k;
     sample *s;
@@ -85,8 +86,6 @@ void yanisa_dumb(void *arg) {
     }
 }
 
-
-
 int main(int argc, char *argv[]) {
     int rnum;
     //pthread_mutex_init(&global_lock, NULL);
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < num_threads; i++) {
         args[i] = i * 2;
-        pthread_create(&tid[i], NULL, yanisa_dumb, &args[i]);
+        pthread_create(&tid[i], NULL, random_generator, &args[i]);
     }
 
     for (i = 0; i < num_threads; i++) {
