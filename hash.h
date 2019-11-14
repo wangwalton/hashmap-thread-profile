@@ -3,6 +3,7 @@
 #define HASH_H
 
 #include <stdio.h>
+#include <pthread.h>
 #include "list.h"
 
 #define HASH_INDEX(_addr,_size_mask) (((_addr) >> 2) & (_size_mask))
@@ -16,6 +17,7 @@ template<class Ele, class Keytype> class hash {
   unsigned my_size_mask;
   list<Ele,Keytype> *entries;
   list<Ele,Keytype> *get_list(unsigned the_idx);
+  pthread_mutex_t *locks;
 
  public:
   void setup(unsigned the_size_log=5);
@@ -24,6 +26,8 @@ template<class Ele, class Keytype> class hash {
   void print(FILE *f=stdout);
   void reset();
   void cleanup();
+  void lock(Keytype k);
+  void unlock(Keytype k);
 };
 
 template<class Ele, class Keytype> 
@@ -33,6 +37,7 @@ hash<Ele,Keytype>::setup(unsigned the_size_log){
   my_size = 1 << my_size_log;
   my_size_mask = (1 << my_size_log) - 1;
   entries = new list<Ele,Keytype>[my_size];
+  locks = new pthread_mutex_t[my_size];
 }
 
 template<class Ele, class Keytype> 
@@ -87,5 +92,17 @@ hash<Ele,Keytype>::insert(Ele *e){
   entries[HASH_INDEX(e->key(),my_size_mask)].push(e);
 }
 
+template<class Ele, class Keytype> 
+void 
+hash<Ele,Keytype>::lock(Keytype k){
+  int id = HASH_INDEX(k, my_size_mask);
+  pthread_mutex_lock(&locks[id]);
+}
 
+template<class Ele, class Keytype> 
+void 
+hash<Ele,Keytype>::unlock(Keytype k){
+  int id = HASH_INDEX(k, my_size_mask);
+  pthread_mutex_unlock(&locks[id]);
+}
 #endif
