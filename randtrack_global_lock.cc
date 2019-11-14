@@ -24,6 +24,7 @@ unsigned num_threads;
 unsigned samples_to_skip;
 
 class sample;
+pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
 
 class sample {
     unsigned my_key;
@@ -47,8 +48,50 @@ class sample {
 // key value is "unsigned".
 hash<sample, unsigned> h;
 
+void yanisa_dumb(void *arg) {
+    int rnum;
+    int i, j, k;
+    sample *s;
+    unsigned key;
+
+    // process streams starting with different initial numbers
+    for (i = 0; i < NUM_SEED_STREAMS / num_threads; i++) {
+        rnum = *((int *) (arg)) + i;
+
+        for (j = 0; j < SAMPLES_TO_COLLECT; j++) {
+
+            // skip a number of samples
+            for (k = 0; k < samples_to_skip; k++) {
+                rnum = rand_r((unsigned int *)&rnum);
+            }
+
+            // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
+            key = rnum % RAND_NUM_UPPER_BOUND;
+            
+            pthread_mutex_lock(&global_lock);
+            // if this sample has not been counted before
+            if (!(s = h.lookup(key))) {
+
+                // insert a new element for it into the hash table
+                s = new sample(key);
+                h.insert(s);
+            }
+
+
+            // increment the count for the sample
+            s->count++;
+            pthread_mutex_unlock(&global_lock);
+        }
+    }
+}
+
+
+
 int main(int argc, char *argv[]) {
     int rnum;
+    //pthread_mutex_init(&global_lock, NULL);
+    pthread_t tid[NUM_SEED_STREAMS];
+    int args[NUM_SEED_STREAMS];
 
     // Print out team information
     printf("Team Name: %s\n", team.team);
@@ -63,46 +106,24 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s <num_threads> <samples_to_skip>\n", argv[0]);
         exit(1);
     }
+
     sscanf(argv[1], " %d", &num_threads); // not used in this single-threaded version
     sscanf(argv[2], " %d", &samples_to_skip);
 
     // initialize a 16K-entry (2**14) hash of empty lists
     h.setup(14);
 
-    // process streams starting with different initial numbers
-    for (i = 0; i < NUM_SEED_STREAMS; i++) {
-        rnum = i;
-        
+    int i;
+
+    for (i = 0; i < num_threads; i++) {
+        args[i] = i * 2;
+        pthread_create(&tid[i], NULL, yanisa_dumb, &args[i]);
     }
+
+    for (i = 0; i < num_threads; i++) {
+        pthread_join(tid[i], NULL);
+    }
+
     // print a list of the frequency of all samples
     h.print();
 }
-
-void yanisa_dumb(int rnum) {
-    int j, k;
-    sample *s;
-    unsigned key;
-
-    for (j = 0; j < SAMPLES_TO_COLLECT; j++) {
-
-        // skip a number of samples
-        for (k = 0; k < samples_to_skip; k++) {
-            rnum = rand_r((unsigned int *)&rnum);
-        }
-
-        // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
-        key = rnum % RAND_NUM_UPPER_BOUND;
-
-        // if this sample has not been counted before
-        if (!(s = h.lookup(key))) {
-
-            // insert a new element for it into the hash table
-            s = new sample(key);
-            h.insert(s);
-        }
-
-        // increment the count for the sample
-        s->count++;
-    }
-}
-
