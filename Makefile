@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O3 -lpthread -fgnu-tm
+CFLAGS = -lpthread -fgnu-tm -g3
 
 all: randtrack randtrack_global_lock randtrack_tm randtrack_list_lock randtrack_element_lock randtrack_reduction
 

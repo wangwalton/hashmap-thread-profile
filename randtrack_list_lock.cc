@@ -47,7 +47,7 @@ class sample {
 // key value is "unsigned".
 hash<sample, unsigned> h;
 
-void random_generator(void *arg) {
+void *random_generator(void *arg) {
     int rnum;
     int i, j, k;
     sample *s;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
     int i;
 
     for (i = 0; i < num_threads; i++) {
-        args[i] = i * 2;
+        args[i] = i * NUM_SEED_STREAMS / num_threads;
         pthread_create(&tid[i], NULL, random_generator, &args[i]);
     }
 

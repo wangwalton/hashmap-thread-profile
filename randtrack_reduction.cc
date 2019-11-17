@@ -49,17 +49,17 @@ class sample {
 hash<sample, unsigned> *hs;
 hash<sample, unsigned> res;
 
-void random_generator(void *arg) {
+void *random_generator(void *arg) {
     int rnum;
     int i, j, k;
     sample *s;
     unsigned key;
-    int id = *((int *) (arg)) / 2;
-    hash<sample, unsigned> *h = &h[id];
+    int id = *((int *) (arg));
+    hash<sample, unsigned> *h = &hs[id];
 
     // process streams starting with different initial numbers
     for (i = 0; i < NUM_SEED_STREAMS / num_threads; i++) {
-        rnum = *((int *) (arg)) + i;
+        rnum = *((int *) (arg))*(NUM_SEED_STREAMS/num_threads) + i;
 
         for (j = 0; j < SAMPLES_TO_COLLECT; j++) {
 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     }
     
     for (i = 0; i < num_threads; i++) {
-        args[i] = i * 2;
+        args[i] = i;
         pthread_create(&tid[i], NULL, random_generator, &args[i]);
     }
 
