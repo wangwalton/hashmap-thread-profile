@@ -1,5 +1,5 @@
 # hashmap-thread-profile
-
+This is an assignment for ECE454 - System Programming at University of Toronto
 Name: Yupeng Wang
 Student Number: 1003272521
 
