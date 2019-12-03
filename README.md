@@ -25,4 +25,4 @@ reduction    21.57       10.78        5.76
 |tm           |1.13x|
 |list_lock    |1.01x|
 |element_lock |1.02X|
-|reduction|    |1.00x|
+|reduction|    1.00x|
