@@ -9,11 +9,14 @@ list_lock    21.87       11.20        5.97
 element_lock 21.90       10.99        5.90
 reduction    21.57       10.78        5.76
 
-| Version        | 1 Thread           | 2 Threads  |
+|Version        |1 Thread           |2 Threads  |4 Threads|
 | ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+| randtrack      | 21.57 | $1600 |
+| global_lcok    | 21.67      |   $12 |
+| tm | are neat  |     24.34  |
+| list_lock      | 21.87      |    $1 |
+| element_lock   |  21.90       |    $1 |
+| reduction      | 21.57       |    $1 |
 
 Version      Overhead
 randtrack    1.00x
